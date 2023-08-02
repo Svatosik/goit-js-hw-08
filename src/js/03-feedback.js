@@ -2,12 +2,14 @@ import throttle from 'lodash.throttle';
 
 const formElement = document.querySelector('.feedback-form');
 const FORM_KEY = 'feedback-form-state';
-function onFormInput(event) {
+function onFormInput(evt) {
   let formInfo = localStorage.getItem(FORM_KEY);
   formInfo = formInfo ? JSON.parse(formInfo) : {};
-  formInfo[event.target.name] = event.target.value;
+  formInfo[evt.target.name] = evt.target.value;
   localStorage.setItem(FORM_KEY, JSON.stringify(formInfo));
 }
+formElement.addEventListener('input', throttle(onFormInput, 500));
+
 function handlerFillForm() {
   let saveInfo = localStorage.getItem(FORM_KEY);
   if (saveInfo) {
@@ -17,22 +19,21 @@ function handlerFillForm() {
     });
   }
 }
-function onFormSubmit(event) {
-  event.preventDefault();
+handlerFillForm();
+
+function onFormSubmit(evt) {
+  evt.preventDefault();
   const {
     elements: { email, message },
-  } = event.currentTarget;
+  } = evt.currentTarget;
   if (email.value === '' || message.value === '') {
     return alert('Fill all the fields');
   } else {
     let formData = JSON.parse(localStorage.getItem(FORM_KEY));
     console.log(formData);
-    event.currentTarget.reset();
+    evt.currentTarget.reset();
     localStorage.removeItem(FORM_KEY);
     formData = {};
   }
 }
-
-formElement.addEventListener('input', throttle(onFormInput, 500));
-handlerFillForm();
 formElement.addEventListener('submit', onFormSubmit);
